@@ -254,11 +254,11 @@ function App(props) {
 
   // ** keep track of total 'threshold' needed of ETH
   const threshold = useContractReader(readContracts, "Staker", "threshold");
-  console.log("💵 threshold:", threshold);
+  console.log("💵 threshold:", threshold.toString());
 
   // ** keep track of a variable from the contract in the local React state:
   const balanceStaked = useContractReader(readContracts, "Staker", "balances", [address]);
-  console.log("💸 balanceStaked:", balanceStaked);
+  console.log("💸 balanceStaked:", balanceStaked.toString());
 
   // ** 📟 Listen for broadcast events
   const stakeEvents = useEventListener(readContracts, "Staker", "Stake", localProvider, 1);
@@ -523,7 +523,8 @@ function App(props) {
 
             <div style={{ padding: 8 }}>
               <div>Total staked:</div>
-              <Balance balance={stakerContractBalance} fontSize={64} />/<Balance balance={threshold} fontSize={64} />
+              <Balance balance={stakerContractBalance} fontSize={64} />/
+              <Balance balance={threshold?.toString()} fontSize={64} />
             </div>
 
             <div style={{ padding: 8 }}>
@@ -557,10 +558,10 @@ function App(props) {
               <Button
                 type={balanceStaked ? "success" : "primary"}
                 onClick={() => {
-                  tx(writeContracts.Staker.stake({ value: ethers.utils.parseEther("0.5") }));
+                  tx(writeContracts.Staker.stake({ value: ethers.utils.parseEther("0.0001") }));
                 }}
               >
-                🥩 Stake 0.5 ether!
+                🥩 Stake 0.0001 ether!
               </Button>
             </div>
 
