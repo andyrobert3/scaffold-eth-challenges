@@ -69,6 +69,46 @@ contract DEX {
     return ethBought;
   }
 
+  function deposit() public payable returns (uint256) {
+    // ETH supply
+    // Tokens transferred from caller to contract
+    // Updates totalLiquidity & msg.sender liquidity 
+
+    // Subtract ETH when depositing ??
+    uint256 ethReserve = address(this).balance - msg.value;
+    uint256 tokenReserve = token.balanceOf(address(this));
+
+    uint256 tokenAmount = msg.value * tokenReserve / ethReserve + 1; // Why +1
+
+    // Why is this liquidity minted?
+    uint256 liquidityMinted = totalLiquidity / ethReserve;
+    
+    totalLiquidity += liquidityMinted;
+    liquidity[msg.sender] += liquidityMinted;
+
+    require(token.transferFrom(msg.sender, address(this), tokenAmount));
+    return liquidityMinted;
+  }
+
+  function withdraw(uint256 tokens) public returns (uint256, uint256) {
+    uint256 tokenReserve = token.balanceOf(address(this));
+    uint256 ethReserve = address(this).balance;
+
+    uint256 ethAmount = tokens * ethReserve / totalLiquidity;
+    uint tokenAmount = tokens * tokenReserve / totalLiquidity;
+
+    // Liquidity valued in terms of ETH
+    uint256 liquidityWithdrawn = ethAmount;
+    
+    totalLiquidity = totalLiquidity - liquidityWithdrawn;
+    liquidity[msg.sender] = liquidity[msg.sender] - liquidityWithdrawn;
+
+    (bool sent, ) = msg.sender.call{ value: ethAmount }("");
+    require(sent);
+    require(token.transfer(msg.sender, tokenAmount));
+
+    return (ethAmount, tokenAmount);
+  }
 
   
 }
